@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- FULLSCREEN GIF HERO -->
+<section id="hero" style="position: relative; height: 100vh; overflow: hidden;">
+    <!-- GIF Background -->
+    <img src="{% static 'atv_animation2.gif' %}" 
+         alt="ATV Animation" 
+         style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 0;">
+
+    <div style="position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 50px 20px; text-align: center; color: white;">
+
+        <!-- SUS: Welcome Text -->
+        <div style="margin-top: 20px;">
+            <h1 class="display-3 font-weight-bold text-shadow">Welcome to DirtMotion!</h1>
+            <p class="lead text-shadow">Feel the power. Ride the freedom.</p>
+        </div>
+
+        <!-- JOS: Filter Buttons și Explore -->
+        <div style="margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+            <!-- Categorie Butoane Estetice cu Iconițe -->
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                <a href="{% url 'items_list' 1 %}" class="btn category-btn atv-btn">
+                    <i class="fas fa-motorcycle"></i> ATV
+                </a>
+                <a href="{% url 'items_list' 3 %}" class="btn category-btn buggy-btn">
+                    <i class="fas fa-car-side"></i> Buggy
+                </a>
+                <a href="{% url 'items_list' 2 %}" class="btn category-btn cross-btn">
+                    <i class="fas fa-flag-checkered"></i> Cross
+                </a>
+            </div>
+
+            <!-- Explore Button cu Iconiță și culoare diferită -->
+            <a href="#items-section" class="btn explore-btn shadow px-5 py-3 mt-3">
+                <i class="fas fa-fire"></i> Explore ATVs
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURED CAROUSEL -->
+<section class="container mt-5">
+    <div id="carouselATVs" class="carousel slide mb-5" data-ride="carousel">
+        <div class="carousel-inner">
+            {% for item in featured_items %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img src="{{ item.Image.url }}" class="d-block w-100" style="max-height:400px; object-fit: cover; border-radius: 15px;" alt="{{ item.Name }}">
+                <div class="carousel-caption d-none d-md-block p-3" style="background: rgba(0,0,0,0.55); border-radius: 10px;">
+                    <h4 class="text-warning font-weight-bold">{{ item.Name }}</h4>
+                    <p class="text-light mb-0">{{ item.Description|truncatechars:80 }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <a class="carousel-control-prev" href="#carouselATVs" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </a>
+        <a class="carousel-control-next" href="#carouselATVs" role="button" data-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </a>
+    </div>
+</section>
+
+<!-- ITEMS GRID -->
+<section class="container mb-5" id="items-section">
+    <h2 class="text-center font-weight-bold mb-4" style="color:#ff4d00;">🚀 Best Selling ATVs</h2>
+
+    <div class="row">
+        {% for item in items %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                <img src="{{ item.Image.url }}" class="card-img-top" style="height: 220px; object-fit: cover; border-radius: 20px 20px 0 0;" alt="{{ item.Name }}">
+                <div class="card-body">
+                    <h5 class="card-title font-weight-bold">{{ item.Name }}</h5>
+                    <p class="card-text text-muted">{{ item.Description|truncatechars:60 }}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="text-danger font-weight-bold h5">${{ item.Price }}</span>
+                        <a href="#" class="btn btn-primary">Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="col-12 text-center text-muted">No items found.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<style>
+.text-shadow {
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+}
+
+/* Stiluri butoane categorii */
+.category-btn {
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 50px;
+    color: white !important;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Efect hover */
+.category-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+/* Gradienturi pentru fiecare categorie */
+.atv-btn {
+    background: linear-gradient(45deg, #ff9a00, #ff4d00);
+}
+
+.buggy-btn {
+    background: linear-gradient(45deg, #ff4d79, #ff1a44);
+}
+
+.cross-btn {
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+}
+
+/* Explore Button Stil: culoare diferită */
+.explore-btn {
+    font-size: 1.3rem;
+    font-weight: 700;
+    border-radius: 50px;
+    color: white !important;
+    background: linear-gradient(45deg, #9b30ff, #ff6ec7);  /* Violet-portocaliu */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.explore-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+</style>
+
+{% endblock %}

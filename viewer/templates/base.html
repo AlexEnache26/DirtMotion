@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DirtMotion</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* -------------------------------------------------
+           GLOBAL
+        ------------------------------------------------- */
+        body {
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* -------------------------------------------------
+           INTRO SPLASH SCREEN
+        ------------------------------------------------- */
+        #intro-screen {
+            position: fixed;
+            inset: 0;
+            background: black;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            opacity: 1;
+            transition: opacity 1s ease;
+        }
+
+        #intro-text {
+            color: white;
+            font-size: 60px;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateX(-200px);
+            animation: textSlideIn 2s forwards ease-out 1s;
+            text-shadow: 0 0 12px black;
+        }
+
+        #intro-gif {
+            width: 350px;
+            margin-top: 20px;
+            opacity: 0;
+            animation: gifFadeIn 2s forwards ease 1.2s;
+        }
+
+        @keyframes textSlideIn {
+            0% { opacity: 0; transform: translateX(-200px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes gifFadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* -------------------------------------------------
+           NAVBAR STYLING
+        ------------------------------------------------- */
+        .navbar-custom {
+            backdrop-filter: blur(12px);
+            background-color: rgba(0,0,0,0.5);
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar-custom .nav-link {
+            color: white !important;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .navbar-custom .nav-link:hover {
+            color: #ff4d00 !important;
+            transform: scale(1.1);
+        }
+
+        .navbar-custom .dropdown-menu {
+            background-color: rgba(0,0,0,0.8);
+            border: none;
+        }
+
+        .navbar-custom .dropdown-item {
+            color: white !important;
+            transition: 0.2s;
+        }
+
+        .navbar-custom .dropdown-item:hover {
+            color: #ff4d00 !important;
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .navbar-brand i {
+            color: #ff4d00;
+        }
+
+        .flash-message {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 2000;
+        }
+    </style>
+</head>
+
+<body>
+{% load static %}
+
+<!-- INTRO SPLASH -->
+<div id="intro-screen">
+    <div id="intro-text">Welcome to DirtMotion</div>
+    <img id="intro-gif" src="{% static 'loading.gif' %}" alt="gif">
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+    <div class="container">
+
+        <a class="navbar-brand font-weight-bold" href="/">
+            <i class="fas fa-motorcycle"></i> DirtMotion
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse"
+                data-target="#navbarNavAltMarkup">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <ul class="navbar-nav ml-auto">
+
+                <!-- Home -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+
+                <!-- Add Item (Admin Only) -->
+                {% if user.is_authenticated and user.is_staff %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'add_item' %}">
+                        <i class="fas fa-plus-circle"></i> Add Item
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- Categories -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                        <i class="fas fa-list"></i> Categories
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="{% url 'items_list' 1 %}">
+                            <i class="fas fa-helmet-safety"></i> ATV
+                        </a>
+                        <a class="dropdown-item" href="{% url 'items_list' 3 %}" >
+                            <i class="fas fa-car-side"></i> Buggy
+                        </a>
+                        <a class="dropdown-item" href="{% url 'items_list' 2 %}">
+                            <i class="fas fa-flag-checkered"></i> Cross
+                        </a>
+                    </div>
+                </li>
+
+                <!-- Featured -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#items-section">
+                        <i class="fas fa-star"></i> Featured
+                    </a>
+                </li>
+
+                <!-- Contact -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">
+                        <i class="fas fa-envelope"></i> Contact
+                    </a>
+                </li>
+
+                <!-- Flash Messages -->
+                {% if messages %}
+                <div class="flash-message">
+                    {% for message in messages %}
+                        <div class="alert alert-success alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- LOGIN / ACCOUNT -->
+                <li class="nav-item dropdown">
+                    {% if user.is_authenticated %}
+                        <a class="nav-link dropdown-toggle btn btn-outline-light mx-2"
+                           href="#" data-toggle="dropdown">
+                            <i class="fas fa-user"></i> {{ user.username }}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="{% url 'my_account' %}">
+                                <i class="fas fa-user-circle"></i> My Account
+                            </a>
+                            <form method="POST" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <a class="nav-link dropdown-toggle btn btn-outline-light mx-2"
+                           href="#" data-toggle="dropdown">
+                            <i class="fas fa-user"></i> Account
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="{% url 'login' %}">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                            <a class="dropdown-item" href="{% url 'register' %}">
+                                <i class="fas fa-user-plus"></i> Register
+                            </a>
+                        </div>
+                    {% endif %}
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+
+<!-- INTRO LOGIC: show only once per session -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const intro = document.getElementById('intro-screen');
+
+    if (sessionStorage.getItem('introShown')) {
+        intro.style.display = 'none';
+    } else {
+        intro.style.display = 'flex';
+        setTimeout(() => {
+            intro.style.opacity = '0';
+            setTimeout(() => {
+                intro.style.display = 'none';
+            }, 1000);
+        }, 4000);
+        sessionStorage.setItem('introShown', 'true');
+    }
+});
+</script>
+
+</body>
+</html>

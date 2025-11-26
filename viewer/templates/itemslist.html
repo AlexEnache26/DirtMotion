@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 20px;">
+    <h2 style="margin-bottom: 20px;">Lista de ATV-uri</h2>
+
+    {% if atv_list %}
+        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+            {% for atv in atv_list %}
+                <div style="border: 1px solid #ccc; border-radius: 10px; padding: 15px; width: 250px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
+                    {% if atv.Image %}
+                        <img src="{{ atv.Image.url }}" alt="{{ atv.Name }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 5px;">
+                    {% else %}
+                        <div style="width: 100%; height: 150px; background-color: #eee; display: flex; align-items: center; justify-content: center; border-radius: 5px;">
+                            <span>Fără imagine</span>
+                        </div>
+                    {% endif %}
+                    <h3 style="margin-top: 10px;">{{ atv.Name }}</h3>
+                    <p>Model: {{ atv.Brand }}</p>
+                    <p>Pret: {{ atv.Price }} USD</p>
+                    <p>Descriere: {{ atv.Description }}</p>
+                    <p>Tipul: {{ atv.Type }}</p>
+                    <p>Review: {{ atv.Reviews }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Nu există ATV-uri disponibile.</p>
+    {% endif %}
+</div>
+{% endblock %}

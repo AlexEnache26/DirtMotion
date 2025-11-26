@@ -1,0 +1,4 @@
+django
+Pillow
+.\.venv\Scripts\activate
+sqlite

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>ATVs List</h1>
+<ul class="list-group">
+    {% for item in items %}
+    <li class="list-group-item">
+        <strong>{{ item.Name }}</strong> - {{ item.Description|truncatewords:15 }} 
+        (Price: ${{ item.Price }})
+    </li>
+    {% empty %}
+    <li class="list-group-item">No ATVs found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
