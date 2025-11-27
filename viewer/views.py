@@ -77,6 +77,14 @@ def add_item(request):
         print('Nu a mers!')
     return render(request, 'add_item.html', {'form': form})
 
+@login_required
+@user_passes_test(is_admin)
+def view_item(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    return render(request, 'item.html', {'item': item})
+        
+
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)

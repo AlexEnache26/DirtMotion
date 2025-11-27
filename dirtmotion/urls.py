@@ -34,6 +34,7 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
     path('my-account/', my_account, name='my_account'),
+    path('item_detail/<int:item_id>/', view_item, name = 'item_detail'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
