@@ -159,14 +159,17 @@
                         <i class="fas fa-list"></i> Categories
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="{% url 'items_list' 1 %}">
+                        <a class="dropdown-item" href="{% url 'items_list' %}?type=1">
                             <i class="fas fa-helmet-safety"></i> ATV
                         </a>
-                        <a class="dropdown-item" href="{% url 'items_list' 3 %}" >
+                        <a class="dropdown-item" href="{% url 'items_list' %}?type=3">
                             <i class="fas fa-car-side"></i> Buggy
                         </a>
-                        <a class="dropdown-item" href="{% url 'items_list' 2 %}">
+                        <a class="dropdown-item" href="{% url 'items_list' %}?type=2">
                             <i class="fas fa-flag-checkered"></i> Cross
+                        </a>
+                        <a class="dropdown-item" href="{% url 'items_list' %}">
+                        <i class="fas fa-th-list"></i> All
                         </a>
                     </div>
                 </li>

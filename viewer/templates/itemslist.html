@@ -1,35 +1,127 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="padding: 20px;">
-    <h2 style="margin-bottom: 20px;">Lista de ATV-uri</h2>
+<div style="display: flex; gap: 20px; padding: 20px;">
 
-    {% if atv_list %}
-        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    <!-- SIDEBAR FILTRE -->
+    <div style="width: 300px; background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <h3 style="margin-bottom: 20px; font-weight: 700; color: #ff4d00;">Filtrează</h3>
+        <form method="get" action="{% url 'items_list' %}">
+
+            {% if type_id %}
+                <input type="hidden" name="type" value="{{ type_id }}">
+            {% endif %}
+
+            <!-- Tip doar când suntem pe All -->
+            {% if not type_id %}
+                <label style="font-weight: 600;">Tip:</label>
+                <select name="type_filter" class="form-control mb-3" style="padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                    <option value="">Toate</option>
+                    {% for t in types %}
+                        <option value="{{ t.Name }}" {% if t.Name == selected_type %}selected{% endif %}>
+                            {{ t.Name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+
+            <!-- Brand dinamic -->
+            <label style="font-weight: 600;">Brand:</label>
+            <select name="brand" class="form-control mb-3" style="padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                <option value="">Toate</option>
+                {% for b in brands %}
+                    <option value="{{ b.id }}" {% if b.id|stringformat:"s" == selected_brand %}selected{% endif %}>
+                        {{ b.Name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <!-- Slider Preț -->
+            <label style="font-weight: 600;">Preț maxim (USD):</label>
+            <input type="range" min="0" max="50000" step="500" name="max_price" id="priceSlider" value="{{ max_price|default:50000 }}" class="form-range mb-1">
+            <div style="display:flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 10px;">
+                <span>0</span>
+                <span id="priceValue">{{ max_price|default:50000 }}</span>
+            </div>
+
+            <!-- Slider Rating -->
+            <label style="font-weight: 600;">Rating minim:</label>
+            <input type="range" min="1" max="5" step="1" name="min_rating" id="ratingSlider" value="{{ min_rating|default:1 }}" class="form-range mb-1">
+            <div style="display:flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 15px;">
+                <span>1⭐</span>
+                <span id="ratingValue">{{ min_rating|default:1 }}</span>
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; padding: 10px; background: #ff4d00; color: #fff; font-weight: 700; border-radius: 10px; transition: all 0.3s ease;">
+                Aplică filtrele
+            </button>
+            <a href="{% url 'items_list' %}?type={{ type_id }}" class="btn mt-2" style="width: 100%; padding: 10px; background: #ccc; color: #333; font-weight: 700; border-radius: 10px; text-align: center;">
+                Resetează filtrele
+            </a>
+        </form>
+    </div>
+
+    <!-- GRID PRODUSE -->
+    <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 20px; justify-content: flex-start;">
+        {% if atv_list %}
             {% for atv in atv_list %}
-                <div style="border: 1px solid #ccc; border-radius: 10px; padding: 15px; width: 250px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
-                    {% if atv.Image %}
-                        <img src="{{ atv.Image.url }}" alt="{{ atv.Name }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 5px;">
-                    {% else %}
-                        <div style="width: 100%; height: 150px; background-color: #eee; display: flex; align-items: center; justify-content: center; border-radius: 5px;">
-                            <span>Fără imagine</span>
-                        </div>
-                    {% endif %}
-                    <h3 style="margin-top: 10px;">{{ atv.Name }}</h3>
-                    <p>Model: {{ atv.Brand }}</p>
-                    <p>Pret: {{ atv.Price }} USD</p>
-                    <p>Descriere: {{ atv.Description }}</p>
-                    <p>Tipul: {{ atv.Type }}</p>
-                    <p>Review: {{ atv.Reviews }}</p>
-                    <a href="/item_detail/{{ atv.id }}" class = 'btn'>
-                        View Details
-                    </a>
-                    
+                <div style="flex: 0 0 calc(25% - 20px); border-radius: 20px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1); transition: transform 0.3s; margin-bottom: 20px;">
+                    <!-- IMAGE + BADGE -->
+                    <div style="position: relative; overflow: hidden;">
+                        {% if atv.Image %}
+                            <img src="{{ atv.Image.url }}" alt="{{ atv.Name }}" style="width: 100%; height: 200px; object-fit: cover; transition: transform 0.3s;">
+                        {% else %}
+                            <div style="width: 100%; height: 200px; background-color: #eee; display: flex; align-items: center; justify-content: center;">
+                                <span>Fără imagine</span>
+                            </div>
+                        {% endif %}
+
+                        <!-- Badge Brand -->
+                        <span style="position: absolute; top: 10px; left: 10px; background: #ff4d00; color: #fff; padding: 5px 10px; border-radius: 10px; font-size: 0.8rem; font-weight: 700;">
+                            {{ atv.Brand }}
+                        </span>
+                    </div>
+
+                    <!-- CARD BODY -->
+                    <div style="padding: 15px; background: #fff;">
+                        <h4 style="font-weight: 700; margin-bottom: 5px; color: #333;">{{ atv.Name }}</h4>
+                        <p style="margin: 0 0 5px 0; color: #555; font-size: 0.9rem;">{{ atv.Type }}</p>
+                        <p style="margin: 0 0 10px 0; font-weight: 600; color: #ff4d00;">${{ atv.Price }}</p>
+                        <a href="/item_detail/{{ atv.id }}" style="display: inline-block; padding: 8px 15px; border-radius: 10px; background: #ff4d00; color: #fff; font-weight: 700; text-align: center; transition: all 0.3s;">
+                            Vezi detalii
+                        </a>
+                    </div>
                 </div>
             {% endfor %}
-        </div>
-    {% else %}
-        <p>Nu există ATV-uri disponibile.</p>
-    {% endif %}
+        {% else %}
+            <p>Nu există produse care să corespundă filtrelor.</p>
+        {% endif %}
+    </div>
+
 </div>
+
+<!-- JS Slider + Hover imagine -->
+<script>
+    // Slider Preț
+    const priceSlider = document.getElementById('priceSlider');
+    const priceValue = document.getElementById('priceValue');
+    priceSlider.oninput = function() {
+        priceValue.innerText = this.value;
+    }
+
+    // Slider Rating
+    const ratingSlider = document.getElementById('ratingSlider');
+    const ratingValue = document.getElementById('ratingValue');
+    ratingSlider.oninput = function() {
+        ratingValue.innerText = this.value + '⭐';
+    }
+
+    // Hover imagine zoom
+    const images = document.querySelectorAll('div[style*="overflow: hidden"] img');
+    images.forEach(img => {
+        img.parentElement.addEventListener('mouseenter', () => { img.style.transform = "scale(1.1)"; });
+        img.parentElement.addEventListener('mouseleave', () => { img.style.transform = "scale(1)"; });
+    });
+</script>
+
 {% endblock %}

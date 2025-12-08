@@ -19,11 +19,57 @@ def hello(request, s):
 def home_page(request):
     return render(request, "home.html")
 
-def items_list(request, type_id):
-    atv_list = Item.objects.filter(Type=type_id)
-    print(atv_list)  # să vedem în terminal dacă există obiecte
-    return render(request, "itemslist.html", {'atv_list': atv_list})
+def items_list(request):
+    type_id = request.GET.get('type')
+    brand_id = request.GET.get('brand')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    min_rating = request.GET.get('min_rating')
+    type_filter = request.GET.get('type_filter')
 
+    qs = Item.objects.all()
+
+    # Filtrare după tip
+    if type_id:
+        qs = qs.filter(Type__id=type_id)
+    if type_filter:
+        qs = qs.filter(Type__Name__iexact=type_filter)
+
+    # Filtrare după brand
+    if brand_id:
+        qs = qs.filter(Brand__id=brand_id)
+
+    # Filtrare după preț
+    if min_price:
+        qs = qs.filter(Price__gte=min_price)
+    if max_price:
+        qs = qs.filter(Price__lte=max_price)
+
+    # Filtrare după rating
+    if min_rating:
+        qs = qs.filter(Reviews__Rating__gte=min_rating)
+
+    # Brandurile disponibile doar pentru tipul selectat
+    if type_id:
+        brands = Brand.objects.filter(item__Type__id=type_id).distinct()
+    elif type_filter:
+        brands = Brand.objects.filter(item__Type__Name__iexact=type_filter).distinct()
+    else:
+        brands = Brand.objects.all()
+
+    types = Type.objects.all()
+
+    return render(request, "itemslist.html", {
+        'atv_list': qs,
+        'brands': brands,
+        'types': types,
+        'type_id': type_id,
+        'selected_brand': brand_id,
+        'min_price': min_price,
+        'max_price': max_price,
+        'min_rating': min_rating,
+        'selected_type': type_filter,
+    })
 
 # class ItemView(View):
 #     def get(self, request, type_id):
