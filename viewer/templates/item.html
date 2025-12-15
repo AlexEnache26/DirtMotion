@@ -1,5 +1,95 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<h1>ATVs List {{ item.Name }}</h1>
+
+<!-- ITEM PAGE HERO / BACKGROUND -->
+<section style="position: relative; min-height: 100vh; overflow: hidden;">
+    <img src="{% static 'atv_animation4.gif' %}" 
+         alt="Background GIF" 
+         style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index:0;">
+    <div style="position: relative; z-index:1; padding: 60px 20px;">
+        
+        <!-- ITEM GALLERY & INFO -->
+        <div style="max-width: 1200px; margin:auto; display:flex; gap:40px;">
+            
+            <!-- LEFT: IMAGE SLIDER -->
+            <div style="flex:1;">
+                <div class="item-gallery">
+                    {% for img in item.images.all %}
+                        <div>
+                            <img src="{{ img.image.url }}" alt="{{ item.Name }}" style="width:100%; height:400px; object-fit:cover; border-radius:20px;">
+                        </div>
+                    {% empty %}
+                        <div>
+                            <img src="{{ item.Image.url }}" alt="{{ item.Name }}" style="width:100%; height:400px; object-fit:cover; border-radius:20px;">
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- RIGHT: INFO -->
+            <div style="flex:1; color:#fff;">
+                <h1 style="font-size:2.5rem; font-weight:800; margin-bottom:15px;">{{ item.Name }}</h1>
+                <h4 style="margin-bottom:10px; color:#ff9a00;">Brand: {{ item.Brand }}</h4>
+                <h5 style="margin-bottom:20px; color:#ff4d00;">Type: {{ item.Type }}</h5>
+                <p style="margin-bottom:20px; font-size:1.1rem;">{{ item.Description }}</p>
+                <h3 style="font-weight:800; color:#ff4d00; margin-bottom:20px;">${{ item.Price }}</h3>
+                <a href="#" class="btn" style="background: linear-gradient(45deg, #ff4d00, #ff9a00); color:#fff; padding:12px 25px; border-radius:15px; font-weight:700;">Add to Cart</a>
+            </div>
+
+        </div>
+
+        <!-- SIMILAR PRODUCTS -->
+        <div style="max-width: 1200px; margin:auto; margin-top:80px;">
+            <h2 style="color:#ff4d00; font-weight:800; margin-bottom:30px;">Produse similare</h2>
+            <div style="display:flex; gap:25px; flex-wrap:wrap;">
+                {% for sim in similar_items %}
+                <div style="flex:0 0 calc(25% - 20px); background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 8px 25px rgba(0,0,0,0.15); transition:transform 0.3s;">
+                    <div style="position:relative; overflow:hidden;">
+                        <img src="{{ sim.Image.url }}" alt="{{ sim.Name }}" style="width:100%; height:180px; object-fit:cover; transition:transform 0.3s;">
+                        <span style="position:absolute; top:10px; left:10px; background:linear-gradient(45deg, #ff4d00,#ff9a00); color:#fff; padding:5px 10px; border-radius:10px; font-weight:700; font-size:0.8rem;">{{ sim.Brand }}</span>
+                    </div>
+                    <div style="padding:15px;">
+                        <h4 style="font-weight:700; margin-bottom:5px;">{{ sim.Name }}</h4>
+                        <p style="color:#555; font-size:0.9rem; margin-bottom:5px;">{{ sim.Type }}</p>
+                        <p style="font-weight:700; color:#ff4d00;">${{ sim.Price }}</p>
+                        <a href="{% url 'item_detail' sim.id %}" style="display:inline-block; background:linear-gradient(45deg,#ff4d00,#ff9a00); color:#fff; padding:8px 15px; border-radius:12px; font-weight:700; text-align:center; margin-top:5px;">Vezi detalii</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- SLIDER SCRIPT (Slick) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('.item-gallery').slick({
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        dots: true,
+        arrows: true,
+        autoplay: true,
+        autoplaySpeed: 3500,
+    });
+
+    // Zoom efect pe hover pentru similar items
+    $('.similar-item img').hover(function(){
+        $(this).css('transform','scale(1.05)');
+    }, function(){
+        $(this).css('transform','scale(1)');
+    });
+});
+</script>
+
+<style>
+.item-gallery img { border-radius:20px; }
+</style>
+
 {% endblock %}

@@ -123,12 +123,19 @@ def add_item(request):
         print('Nu a mers!')
     return render(request, 'add_item.html', {'form': form})
 
-@login_required
-@user_passes_test(is_admin)
+
 def view_item(request, item_id):
     item = get_object_or_404(Item, pk=item_id)
-    return render(request, 'item.html', {'item': item})
-        
+    similar_items = Item.objects.filter(
+        Brand=item.Brand
+    ).exclude(id=item.id)[:6]  # produsele similare, excluzând produsul curent
+
+    return render(request, 'item.html', {
+        'item': item,
+        'similar_items': similar_items
+    })
+
+
 
 
 def register(request):

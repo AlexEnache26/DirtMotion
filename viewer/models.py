@@ -12,7 +12,11 @@ class Item(Model):
     def __str__(self):
         return self.Name
 
-
+class ItemImage(models.Model):
+    item = models.ForeignKey(Item, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='items/')
+    is_main = models.BooleanField(default=False)
+    
 class User(Model):
     FullName = CharField(max_length=50)
     Email = CharField(max_length=50)

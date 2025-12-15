@@ -1,127 +1,292 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="display: flex; gap: 20px; padding: 20px;">
 
-    <!-- SIDEBAR FILTRE -->
-    <div style="width: 300px; background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-        <h3 style="margin-bottom: 20px; font-weight: 700; color: #ff4d00;">Filtrează</h3>
-        <form method="get" action="{% url 'items_list' %}">
+<style>
+/* ================= BACKGROUND ================= */
+.items-bg {
+    min-height: 100vh;
+    background: url("/static/background_itemlist.gif.gif") center / cover no-repeat fixed;
+}
 
-            {% if type_id %}
-                <input type="hidden" name="type" value="{{ type_id }}">
-            {% endif %}
+.items-overlay {
+    background: rgba(0,0,0,0.65);
+    min-height: 100vh;
+    padding: 40px 0;
+}
 
-            <!-- Tip doar când suntem pe All -->
-            {% if not type_id %}
-                <label style="font-weight: 600;">Tip:</label>
-                <select name="type_filter" class="form-control mb-3" style="padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
-                    <option value="">Toate</option>
-                    {% for t in types %}
-                        <option value="{{ t.Name }}" {% if t.Name == selected_type %}selected{% endif %}>
-                            {{ t.Name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            {% endif %}
+/* ================= LAYOUT ================= */
+.items-container {
+    max-width: 1400px;
+    margin: auto;
+}
 
-            <!-- Brand dinamic -->
-            <label style="font-weight: 600;">Brand:</label>
-            <select name="brand" class="form-control mb-3" style="padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
-                <option value="">Toate</option>
-                {% for b in brands %}
-                    <option value="{{ b.id }}" {% if b.id|stringformat:"s" == selected_brand %}selected{% endif %}>
-                        {{ b.Name }}
-                    </option>
-                {% endfor %}
-            </select>
+.items-layout {
+    display: flex;
+    gap: 25px;
+    align-items: flex-start; /* 🔥 FOARTE IMPORTANT */
+}
 
-            <!-- Slider Preț -->
-            <label style="font-weight: 600;">Preț maxim (USD):</label>
-            <input type="range" min="0" max="50000" step="500" name="max_price" id="priceSlider" value="{{ max_price|default:50000 }}" class="form-range mb-1">
-            <div style="display:flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 10px;">
-                <span>0</span>
-                <span id="priceValue">{{ max_price|default:50000 }}</span>
-            </div>
+/* ================= FILTER SIDEBAR ================= */
+.filter-box {
+    width: 300px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
 
-            <!-- Slider Rating -->
-            <label style="font-weight: 600;">Rating minim:</label>
-            <input type="range" min="1" max="5" step="1" name="min_rating" id="ratingSlider" value="{{ min_rating|default:1 }}" class="form-range mb-1">
-            <div style="display:flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 15px;">
-                <span>1⭐</span>
-                <span id="ratingValue">{{ min_rating|default:1 }}</span>
-            </div>
+    height: fit-content;     /* 🔥 SE OPREȘTE LA BUTON */
+    align-self: flex-start;  /* 🔥 NU SE MAI ÎNTINDE */
+}
 
-            <button type="submit" class="btn" style="width: 100%; padding: 10px; background: #ff4d00; color: #fff; font-weight: 700; border-radius: 10px; transition: all 0.3s ease;">
-                Aplică filtrele
-            </button>
-            <a href="{% url 'items_list' %}?type={{ type_id }}" class="btn mt-2" style="width: 100%; padding: 10px; background: #ccc; color: #333; font-weight: 700; border-radius: 10px; text-align: center;">
-                Resetează filtrele
-            </a>
-        </form>
-    </div>
+.filter-title {
+    color: #ff4d00;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
 
-    <!-- GRID PRODUSE -->
-    <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 20px; justify-content: flex-start;">
-        {% if atv_list %}
-            {% for atv in atv_list %}
-                <div style="flex: 0 0 calc(25% - 20px); border-radius: 20px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.1); transition: transform 0.3s; margin-bottom: 20px;">
-                    <!-- IMAGE + BADGE -->
-                    <div style="position: relative; overflow: hidden;">
-                        {% if atv.Image %}
-                            <img src="{{ atv.Image.url }}" alt="{{ atv.Name }}" style="width: 100%; height: 200px; object-fit: cover; transition: transform 0.3s;">
-                        {% else %}
-                            <div style="width: 100%; height: 200px; background-color: #eee; display: flex; align-items: center; justify-content: center;">
-                                <span>Fără imagine</span>
-                            </div>
+.filter-box label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.filter-box select,
+.filter-box input[type="range"] {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.range-value {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.apply-btn {
+    width: 100%;
+    background: linear-gradient(45deg, #ff4d00, #ff9a00);
+    color: #fff;
+    font-weight: 700;
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255,77,0,0.5);
+}
+
+.reset-btn {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    background: #e0e0e0;
+    padding: 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    color: #333;
+    text-decoration: none;
+}
+
+/* ================= PRODUCTS GRID ================= */
+.products-grid {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* 4 PE RAND */
+.product-card {
+    flex: 0 0 calc(25% - 20px);
+    background: #fff;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+}
+
+/* ================= IMAGE ================= */
+.product-image {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    transition: transform 0.4s;
+}
+
+.product-card:hover img {
+    transform: scale(1.1);
+}
+
+/* ================= BRAND BADGE ================= */
+.brand-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: linear-gradient(45deg, #ff4d00, #ff9a00);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+/* ================= CARD BODY ================= */
+.product-body {
+    padding: 18px;
+}
+
+.product-body h4 {
+    font-weight: 800;
+    margin-bottom: 5px;
+    color: #222;
+}
+
+.product-body .type {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.product-body .price {
+    font-weight: 800;
+    color: #ff4d00;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+}
+
+.details-btn {
+    display: inline-block;
+    background: linear-gradient(45deg, #ff4d00, #ff9a00);
+    color: #fff;
+    padding: 9px 18px;
+    border-radius: 14px;
+    font-weight: 800;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.details-btn:hover {
+    box-shadow: 0 6px 15px rgba(255,77,0,0.5);
+    transform: translateY(-2px);
+}
+</style>
+
+<div class="items-bg">
+    <div class="items-overlay">
+        <div class="items-container">
+            <div class="items-layout">
+
+                <!-- SIDEBAR FILTRE -->
+                <div class="filter-box">
+                    <h3 class="filter-title">Filtrează</h3>
+
+                    <form method="get" action="{% url 'items_list' %}">
+
+                        {% if type_id %}
+                            <input type="hidden" name="type" value="{{ type_id }}">
                         {% endif %}
 
-                        <!-- Badge Brand -->
-                        <span style="position: absolute; top: 10px; left: 10px; background: #ff4d00; color: #fff; padding: 5px 10px; border-radius: 10px; font-size: 0.8rem; font-weight: 700;">
-                            {{ atv.Brand }}
-                        </span>
-                    </div>
+                        {% if not type_id %}
+                            <label>Tip</label>
+                            <select name="type_filter">
+                                <option value="">Toate</option>
+                                {% for t in types %}
+                                    <option value="{{ t.Name }}" {% if t.Name == selected_type %}selected{% endif %}>
+                                        {{ t.Name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
 
-                    <!-- CARD BODY -->
-                    <div style="padding: 15px; background: #fff;">
-                        <h4 style="font-weight: 700; margin-bottom: 5px; color: #333;">{{ atv.Name }}</h4>
-                        <p style="margin: 0 0 5px 0; color: #555; font-size: 0.9rem;">{{ atv.Type }}</p>
-                        <p style="margin: 0 0 10px 0; font-weight: 600; color: #ff4d00;">${{ atv.Price }}</p>
-                        <a href="/item_detail/{{ atv.id }}" style="display: inline-block; padding: 8px 15px; border-radius: 10px; background: #ff4d00; color: #fff; font-weight: 700; text-align: center; transition: all 0.3s;">
-                            Vezi detalii
+                        <label>Brand</label>
+                        <select name="brand">
+                            <option value="">Toate</option>
+                            {% for b in brands %}
+                                <option value="{{ b.id }}" {% if b.id|stringformat:"s" == selected_brand %}selected{% endif %}>
+                                    {{ b.Name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <label>Preț maxim (USD)</label>
+                        <input type="range" min="0" max="50000" step="500"
+                               name="max_price" id="priceSlider"
+                               value="{{ max_price|default:50000 }}">
+                        <div class="range-value">
+                            <span>0</span>
+                            <span id="priceValue">{{ max_price|default:50000 }}</span>
+                        </div>
+
+                        <label>Rating minim</label>
+                        <input type="range" min="1" max="5" step="1"
+                               name="min_rating" id="ratingSlider"
+                               value="{{ min_rating|default:1 }}">
+                        <div class="range-value">
+                            <span>1⭐</span>
+                            <span id="ratingValue">{{ min_rating|default:1 }}⭐</span>
+                        </div>
+
+                        <button class="apply-btn">Aplică filtrele</button>
+                        <a href="{% url 'items_list' %}?type={{ type_id }}" class="reset-btn">
+                            Resetează
                         </a>
-                    </div>
+                    </form>
                 </div>
-            {% endfor %}
-        {% else %}
-            <p>Nu există produse care să corespundă filtrelor.</p>
-        {% endif %}
-    </div>
 
+                <!-- PRODUSE -->
+                <div class="products-grid">
+                    {% for atv in atv_list %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="{{ atv.Image.url }}" alt="{{ atv.Name }}">
+                            <span class="brand-badge">{{ atv.Brand }}</span>
+                        </div>
+                        <div class="product-body">
+                            <h4>{{ atv.Name }}</h4>
+                            <div class="type">{{ atv.Type }}</div>
+                            <div class="price">${{ atv.Price }}</div>
+                            <a href="/item_detail/{{ atv.id }}" class="details-btn">
+                                Vezi detalii
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <p style="color:white;">Nu există produse.</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- JS Slider + Hover imagine -->
 <script>
-    // Slider Preț
-    const priceSlider = document.getElementById('priceSlider');
-    const priceValue = document.getElementById('priceValue');
-    priceSlider.oninput = function() {
-        priceValue.innerText = this.value;
-    }
+const priceSlider = document.getElementById("priceSlider");
+const priceValue = document.getElementById("priceValue");
+priceSlider.oninput = () => priceValue.innerText = priceSlider.value;
 
-    // Slider Rating
-    const ratingSlider = document.getElementById('ratingSlider');
-    const ratingValue = document.getElementById('ratingValue');
-    ratingSlider.oninput = function() {
-        ratingValue.innerText = this.value + '⭐';
-    }
-
-    // Hover imagine zoom
-    const images = document.querySelectorAll('div[style*="overflow: hidden"] img');
-    images.forEach(img => {
-        img.parentElement.addEventListener('mouseenter', () => { img.style.transform = "scale(1.1)"; });
-        img.parentElement.addEventListener('mouseleave', () => { img.style.transform = "scale(1)"; });
-    });
+const ratingSlider = document.getElementById("ratingSlider");
+const ratingValue = document.getElementById("ratingValue");
+ratingSlider.oninput = () => ratingValue.innerText = ratingSlider.value + "⭐";
 </script>
 
 {% endblock %}
