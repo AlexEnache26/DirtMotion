@@ -3,93 +3,264 @@
 
 {% block content %}
 
-<!-- ITEM PAGE HERO / BACKGROUND -->
-<section style="position: relative; min-height: 100vh; overflow: hidden;">
-    <img src="{% static 'atv_animation4.gif' %}" 
-         alt="Background GIF" 
-         style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index:0;">
-    <div style="position: relative; z-index:1; padding: 60px 20px;">
-        
-        <!-- ITEM GALLERY & INFO -->
-        <div style="max-width: 1200px; margin:auto; display:flex; gap:40px;">
-            
-            <!-- LEFT: IMAGE SLIDER -->
-            <div style="flex:1;">
-                <div class="item-gallery">
-                    {% for img in item.images.all %}
-                        <div>
-                            <img src="{{ img.image.url }}" alt="{{ item.Name }}" style="width:100%; height:400px; object-fit:cover; border-radius:20px;">
-                        </div>
-                    {% empty %}
-                        <div>
-                            <img src="{{ item.Image.url }}" alt="{{ item.Name }}" style="width:100%; height:400px; object-fit:cover; border-radius:20px;">
-                        </div>
-                    {% endfor %}
+<style>
+/* ================= BACKGROUND ================= */
+.item-bg {
+    min-height: 100vh;
+    background: url("{% static 'background_itemlist.gif.gif' %}") center / cover no-repeat fixed;
+}
+
+.item-overlay {
+    background: rgba(0,0,0,0.65);
+    min-height: 100vh;
+    padding: 60px 0;
+}
+
+/* ================= LAYOUT ================= */
+.item-container {
+    max-width: 1300px;
+    margin: auto;
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* ================= IMAGE ================= */
+.item-image {
+    width: 45%;
+    background: rgba(255,255,255,0.95);
+    padding: 20px;
+    border-radius: 24px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
+.item-image img {
+    width: 100%;
+    border-radius: 18px;
+    object-fit: cover;
+}
+
+/* ================= INFO ================= */
+.item-info {
+    width: 55%;
+    color: #fff;
+}
+
+.item-info h1 {
+    font-size: 38px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.badges {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.badge {
+    background: linear-gradient(45deg, #ff4d00, #ff9a00);
+    padding: 6px 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.price {
+    font-size: 34px;
+    font-weight: 900;
+    color: #ff9a00;
+    margin-bottom: 20px;
+}
+
+/* ================= DESCRIPTION ================= */
+.item-description {
+    max-width: 650px;
+    font-size: 15px;
+    line-height: 1.7;
+    opacity: 0.95;
+}
+
+.item-description h3 {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    color: #ff9a00;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+details summary {
+    cursor: pointer;
+    color: #ff9a00;
+    font-weight: 800;
+    margin-top: 15px;
+}
+
+details p {
+    margin-top: 10px;
+}
+
+/* ================= SPECS ================= */
+.specs ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+.specs li {
+    background: rgba(255,255,255,0.08);
+    padding: 10px 14px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+/* ================= BUTTONS ================= */
+.actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+}
+
+.action-btn {
+    padding: 12px 26px;
+    border-radius: 30px;
+    font-weight: 900;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+}
+
+.buy-btn {
+    background: linear-gradient(45deg, #ff4d00, #ff9a00);
+    color: #fff;
+}
+
+.contact-btn {
+    background: transparent;
+    border: 2px solid #ff9a00;
+    color: #ff9a00;
+}
+
+/* ================= SIMILAR ================= */
+.similar-section {
+    margin-top: 80px;
+}
+
+.similar-section h2 {
+    color: #fff;
+    margin-bottom: 25px;
+    font-size: 28px;
+}
+
+.similar-grid {
+    display: flex;
+    gap: 20px;
+}
+
+.similar-card {
+    width: 220px;
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    text-decoration: none;
+    color: #222;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    transition: transform 0.3s;
+}
+
+.similar-card:hover {
+    transform: translateY(-6px);
+}
+
+.similar-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+}
+
+.similar-card div {
+    padding: 12px;
+}
+
+.similar-card h4 {
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.similar-card span {
+    color: #ff4d00;
+    font-weight: 800;
+}
+</style>
+
+<div class="item-bg">
+    <div class="item-overlay">
+
+        <div class="item-container">
+
+            <!-- IMAGE -->
+            <div class="item-image">
+                <img src="{{ item.Image.url }}" alt="{{ item.Name }}">
+            </div>
+
+            <!-- INFO -->
+            <div class="item-info">
+                <h1>{{ item.Name }}</h1>
+
+                <div class="badges">
+                    <span class="badge">{{ item.Brand }}</span>
+                    <span class="badge">{{ item.Type }}</span>
+                </div>
+
+                <div class="price">${{ item.Price }}</div>
+
+                <div class="item-description">
+                    <h3>Descriere generală</h3>
+                    <p>{{ item.Description|truncatechars:450 }}</p>
+
+                    <details>
+                        <summary>Citește descrierea completă</summary>
+                        <p>{{ item.Description }}</p>
+                    </details>
+
+                    <div class="specs">
+                        <h3>Specificații</h3>
+                        <ul>
+                            <li>Brand: {{ item.Brand }}</li>
+                            <li>Tip: {{ item.Type }}</li>
+                            <li>Rating: ⭐ {{ item.Reviews.Rating }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="action-btn buy-btn">CUMPĂRĂ</button>
+                    <button class="action-btn contact-btn">CONTACT</button>
                 </div>
             </div>
-
-            <!-- RIGHT: INFO -->
-            <div style="flex:1; color:#fff;">
-                <h1 style="font-size:2.5rem; font-weight:800; margin-bottom:15px;">{{ item.Name }}</h1>
-                <h4 style="margin-bottom:10px; color:#ff9a00;">Brand: {{ item.Brand }}</h4>
-                <h5 style="margin-bottom:20px; color:#ff4d00;">Type: {{ item.Type }}</h5>
-                <p style="margin-bottom:20px; font-size:1.1rem;">{{ item.Description }}</p>
-                <h3 style="font-weight:800; color:#ff4d00; margin-bottom:20px;">${{ item.Price }}</h3>
-                <a href="#" class="btn" style="background: linear-gradient(45deg, #ff4d00, #ff9a00); color:#fff; padding:12px 25px; border-radius:15px; font-weight:700;">Add to Cart</a>
-            </div>
-
         </div>
 
-        <!-- SIMILAR PRODUCTS -->
-        <div style="max-width: 1200px; margin:auto; margin-top:80px;">
-            <h2 style="color:#ff4d00; font-weight:800; margin-bottom:30px;">Produse similare</h2>
-            <div style="display:flex; gap:25px; flex-wrap:wrap;">
-                {% for sim in similar_items %}
-                <div style="flex:0 0 calc(25% - 20px); background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 8px 25px rgba(0,0,0,0.15); transition:transform 0.3s;">
-                    <div style="position:relative; overflow:hidden;">
-                        <img src="{{ sim.Image.url }}" alt="{{ sim.Name }}" style="width:100%; height:180px; object-fit:cover; transition:transform 0.3s;">
-                        <span style="position:absolute; top:10px; left:10px; background:linear-gradient(45deg, #ff4d00,#ff9a00); color:#fff; padding:5px 10px; border-radius:10px; font-weight:700; font-size:0.8rem;">{{ sim.Brand }}</span>
+        <!-- SIMILAR -->
+        {% if similar_items %}
+        <div class="item-container similar-section">
+            <h2>Produse similare</h2>
+
+            <div class="similar-grid">
+                {% for s in similar_items %}
+                <a href="{% url 'item_detail' s.id %}" class="similar-card">
+                    <img src="{{ s.Image.url }}">
+                    <div>
+                        <h4>{{ s.Name }}</h4>
+                        <span>${{ s.Price }}</span>
                     </div>
-                    <div style="padding:15px;">
-                        <h4 style="font-weight:700; margin-bottom:5px;">{{ sim.Name }}</h4>
-                        <p style="color:#555; font-size:0.9rem; margin-bottom:5px;">{{ sim.Type }}</p>
-                        <p style="font-weight:700; color:#ff4d00;">${{ sim.Price }}</p>
-                        <a href="{% url 'item_detail' sim.id %}" style="display:inline-block; background:linear-gradient(45deg,#ff4d00,#ff9a00); color:#fff; padding:8px 15px; border-radius:12px; font-weight:700; text-align:center; margin-top:5px;">Vezi detalii</a>
-                    </div>
-                </div>
+                </a>
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
     </div>
-</section>
-
-<!-- SLIDER SCRIPT (Slick) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-<script>
-$(document).ready(function(){
-    $('.item-gallery').slick({
-        slidesToShow: 1,
-        slidesToScroll: 1,
-        dots: true,
-        arrows: true,
-        autoplay: true,
-        autoplaySpeed: 3500,
-    });
-
-    // Zoom efect pe hover pentru similar items
-    $('.similar-item img').hover(function(){
-        $(this).css('transform','scale(1.05)');
-    }, function(){
-        $(this).css('transform','scale(1)');
-    });
-});
-</script>
-
-<style>
-.item-gallery img { border-radius:20px; }
-</style>
+</div>
 
 {% endblock %}

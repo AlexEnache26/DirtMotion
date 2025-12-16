@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- CONTACT PAGE -->
+<section class="contact-section" style="min-height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; padding: 50px 15px;">
+
+    <!-- GIF Background -->
+    <img src="{% static 'atv_animation2.gif' %}" 
+         alt="Background Animation" 
+         style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 0;">
+
+    <!-- Dark overlay for readability -->
+    <div style="position: absolute; top:0; left:0; width:100%; height:100%; background-color: rgba(0,0,0,0.5); z-index: 1;"></div>
+
+    <!-- Contact Card -->
+    <div class="card shadow-lg p-4 p-md-5" style="max-width: 600px; width: 100%; border-radius: 18px; background-color: rgba(255,255,255,0.95); position: relative; z-index: 2; text-align: center;">
+        <h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 10px; color: #222;">DirtMotion</h1>
+        <p style="font-size: 1.2rem; margin-bottom: 20px; color: #555;">Contactează-ne pentru orice întrebare sau comandă</p>
+
+        <p style="font-size: 1.1rem; margin-bottom: 5px;"><strong>Telefon:</strong> <a href="tel:+40745123456">+40 745 123 456</a></p>
+        <p style="font-size: 1.1rem; margin-bottom: 25px;"><strong>Email:</strong> <a href="mailto:contact@dirtmotion.ro">contact@dirtmotion.ro</a></p>
+
+        <!-- Contact Form -->
+        <form method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+            {% csrf_token %}
+            <input type="text" name="name" placeholder="Numele tău" required style="padding: 12px; border-radius: 10px; border: 1px solid #ccc;">
+            <input type="email" name="email" placeholder="Email" required style="padding: 12px; border-radius: 10px; border: 1px solid #ccc;">
+            <textarea name="message" rows="4" placeholder="Mesajul tău" style="padding: 12px; border-radius: 10px; border: 1px solid #ccc;"></textarea>
+            <button type="submit" style="padding: 12px; border-radius: 40px; background-color: #222; color: white; font-weight: 600; font-size: 16px; cursor: pointer;">Trimite</button>
+        </form>
+
+        <!-- Google Maps -->
+        <div class="map-box" style="margin-top: 30px; border-radius: 18px; overflow: hidden; height: 220px; box-shadow: 0 15px 30px rgba(0,0,0,0.25);">
+            <iframe src="https://www.google.com/maps?q=Bucuresti&output=embed" loading="lazy" style="width:100%; height:100%; border:0;"></iframe>
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp & Call Buttons -->
+    <a href="https://wa.me/40745123456" class="float-btn whatsapp" target="_blank">💬</a>
+    <a href="tel:+40745123456" class="float-btn call">📞</a>
+</section>
+
+<style>
+/* Floating buttons */
+.float-btn {
+    position: fixed;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    color: white;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+    z-index: 999;
+    transition: transform 0.3s;
+}
+
+.float-btn:hover {
+    transform: scale(1.1);
+}
+
+.whatsapp {
+    bottom: 100px;
+    background: #25D366;
+}
+
+.call {
+    bottom: 30px;
+    background: #ff7a00;
+}
+</style>
+
+{% endblock %}

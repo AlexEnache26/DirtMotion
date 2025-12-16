@@ -2,6 +2,7 @@ from django import forms
 from .models import Item, ItemImage
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
+from django.forms.models import inlineformset_factory
 
 
 class ItemForm(forms.ModelForm):
@@ -18,4 +19,4 @@ class ItemImageForm(forms.ModelForm):
         model = ItemImage
         fields = ['image', 'is_main']
 
-ItemImageFormSet = forms.inlineformset_factory(Item, ItemImage, form=ItemImageForm, extra=3)
+ItemImageFormSet = forms.inlineformset_factory(Item, ItemImage, form=ItemImageForm, extra=3, can_delete= True)

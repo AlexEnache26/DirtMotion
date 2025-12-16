@@ -1,8 +1,59 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<section class="container mt-5">
-    <h2>My Account</h2>
-    <p>Welcome, {{ user.username }}!</p>
-    <p>Email: {{ user.email }}</p>
+
+<section class="account-hero">
+    <div class="overlay"></div>
+
+    <div class="account-container">
+        <h1>Bine ai venit, {{ user.username }} 👋</h1>
+
+        <div class="account-grid">
+            <div class="account-card">
+                <h3>Profil</h3>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Username:</strong> {{ user.username }}</p>
+            </div>
+
+            <div class="account-card">
+                <h3>Comenzile mele</h3>
+                <p class="muted">Momentan nu ai comenzi.</p>
+            </div>
+        </div>
+    </div>
 </section>
+
+<style>
+.account-hero {
+    min-height: 100vh;
+    background: url("{% static 'atv_animation3.gif' %}") center/cover no-repeat;
+    position: relative;
+}
+.account-hero .overlay {
+    position:absolute;
+    inset:0;
+    background: rgba(0,0,0,0.6);
+}
+.account-container {
+    position: relative;
+    padding: 80px 20px;
+    color: white;
+    text-align: center;
+}
+.account-grid {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+    gap: 20px;
+}
+.account-card {
+    background: rgba(255,255,255,0.95);
+    color: black;
+    padding: 30px;
+    border-radius: 18px;
+}
+.muted {
+    color: #777;
+}
+</style>
 {% endblock %}

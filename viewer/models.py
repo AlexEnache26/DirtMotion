@@ -16,7 +16,10 @@ class ItemImage(models.Model):
     item = models.ForeignKey(Item, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='items/')
     is_main = models.BooleanField(default=False)
-    
+
+    def __str__(self):
+        return f"Image for {self.item.Name}"
+
 class User(Model):
     FullName = CharField(max_length=50)
     Email = CharField(max_length=50)

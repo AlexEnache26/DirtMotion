@@ -12,6 +12,7 @@ from django.contrib.auth.views import LoginView
 from .forms import CustomLoginForm
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.mail import send_mail
 
 def hello(request, s): 
     return HttpResponse(f'Hello, prieten atv-ist {s}!')
@@ -123,6 +124,24 @@ def add_item(request):
         print('Nu a mers!')
     return render(request, 'add_item.html', {'form': form})
 
+def contact(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+
+        send_mail(
+            f'Mesaj nou de la {name}',
+            message,
+            email,
+            ['contact@dirtmotion.ro'],
+            fail_silently=False
+        )
+
+        messages.success(request, "Mesajul a fost trimis cu succes!")
+        return redirect('contact')
+
+    return render(request, 'contact.html')
 
 def view_item(request, item_id):
     item = get_object_or_404(Item, pk=item_id)
